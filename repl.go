@@ -13,6 +13,14 @@ type cliCommand struct {
 	callback    func() error
 }
 
+type Response struct {
+	Next     string   `json:"next"`
+	Previous string   `json:"previous"`
+	Results  []Result `json:"results"`
+}
+
+var data Response
+
 func startRepl() {
 	reader := bufio.NewScanner(os.Stdin)
 	for {
@@ -56,6 +64,32 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Display a message",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Display all locations",
+			callback: func() error {
+				var url string
+				if data.Next == "" {
+					url = "https://pokeapi.co/api/v2/location-area/"
+				} else {
+					url = data.Next
+				}
+				return commandMap(url)
+			},
+		},
+		"mapb": {
+			name:        "map",
+			description: "Display all locations",
+			callback: func() error {
+				var url string
+				if data.Previous == "" {
+					url = "https://pokeapi.co/api/v2/location-area/"
+				} else {
+					url = data.Previous
+				}
+				return commandMap(url)
+			},
 		},
 	}
 }
